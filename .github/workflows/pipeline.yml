@@ -69,3 +69,39 @@ jobs:
           name: coverage-report
           path: api/coverage.xml
           retention-days: 7
+          
+  build-scan-integration:
+    name: Build, Scan & Integration Test
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build API Image explicitly for Scanning
+        run: docker build -t hng-api:latest ./api
+
+      - name: Run Trivy Security Scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'hng-api:latest'
+          format: 'table'
+          exit-code: '0' 
+          severity: 'CRITICAL,HIGH'
+
+      - name: Start Complete Application Stack
+        run: docker compose up --build -d
+
+      - name: Run Integration Tests
+        run: |
+          echo "Waiting for all containers to pass healthchecks..."
+          sleep 20
+          curl --fail http://localhost:3000 || exit 1
+
+  deploy:
+    name: Deploy to Production
+    needs: build-scan-integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Placeholder
+        run: echo "Awaiting new server infrastructure..."
