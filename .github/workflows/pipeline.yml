@@ -89,6 +89,16 @@ jobs:
           exit-code: '0' 
           severity: 'CRITICAL,HIGH'
 
+      - name: Create Test Environment File
+        run: |
+          touch .env
+          echo "REDIS_HOST=redis" >> .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "REDIS_PASSWORD=ci_test_password" >> .env
+          echo "APP_ENV=test" >> .env
+          echo "API_URL=http://api:8000" >> .env
+          echo "PORT=3000" >> .env
+
       - name: Start Complete Application Stack
         run: docker compose up --build -d
 
