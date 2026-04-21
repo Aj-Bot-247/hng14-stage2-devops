@@ -113,5 +113,26 @@ jobs:
     needs: build-scan-integration
     runs-on: ubuntu-latest
     steps:
-      - name: Deployment Placeholder
-        run: echo "Awaiting new server infrastructure..."
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            # Create a directory for the app if it doesn't exist
+            mkdir -p ~/hng14-stage2-prod
+            cd ~/hng14-stage2-prod
+
+            # If the repo isn't cloned yet, clone it. Otherwise, pull the latest changes.
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin fix/initial-bugs
+            fi
+
+            # Rebuild and restart the containers in detached mode
+            docker compose up --build -d
