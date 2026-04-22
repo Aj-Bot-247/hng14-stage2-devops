@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.11-slim
 
 # Create a non-root user
-RUN useradd -m -r appuser
+RUN addgroup --system appuser && adduser --system --ingroup appuser appuser
 
 WORKDIR /app
 

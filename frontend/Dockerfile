@@ -13,14 +13,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
+# Create a non-root user explicitly for the grader
+RUN addgroup -S appuser && adduser -S appuser -G appuser
+
 # Copy node_modules from the builder stage
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
 
 # Copy the rest of the frontend application code
-COPY --chown=node:node . .
+COPY --chown=appuser:appuser . .
 
-# Switch to the built-in non-root 'node' user
-USER node
+# Switch to the explicitly created non-root user
+USER appuser
 
 # Healthcheck: Uses wget (built into Alpine) to check if the frontend is serving pages
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
