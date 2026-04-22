@@ -134,5 +134,14 @@ jobs:
               git pull origin fix/initial-bugs
             fi
 
+            # Create production environment variables
+            touch .env
+            echo "REDIS_HOST=redis" > .env
+            echo "REDIS_PORT=6379" >> .env
+            echo "REDIS_PASSWORD=secure_prod_password" >> .env
+            echo "APP_ENV=production" >> .env
+            echo "API_URL=http://api:8000" >> .env
+            echo "PORT=3000" >> .env
+
             # Rebuild and restart the containers in detached mode
             docker compose up --build -d
