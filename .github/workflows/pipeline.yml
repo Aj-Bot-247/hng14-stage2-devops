@@ -111,6 +111,7 @@ jobs:
   deploy:
     name: Deploy to Production
     needs: build-scan-integration
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -131,7 +132,7 @@ jobs:
             if [ ! -d ".git" ]; then
               git clone https://github.com/${{ github.repository }}.git .
             else
-              git pull origin fix/initial-bugs
+              git pull origin main
             fi
 
             # Create production environment variables
