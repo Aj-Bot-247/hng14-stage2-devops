@@ -3,5 +3,3 @@
 .gitignore
 README.md
 FIXES.md
-__pycache__/
-node_modules/

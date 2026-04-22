@@ -1,27 +1,33 @@
-# Stage 1: Build
+# STAGE 1: Builder
 FROM node:18-alpine AS builder
+
 WORKDIR /app
-COPY package*.json ./
+
+# Copy package metadata and install dependencies
+COPY package.json ./
 RUN npm install
 
-# Stage 2: Production
+# STAGE 2: Production
 FROM node:18-alpine
+
+# Set working directory
 WORKDIR /app
 
-# Install curl for the healthcheck
-RUN apk add --no-cache curl
+# Copy node_modules from the builder stage
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 
-# Requirement: fe_named_nonroot_user
-RUN adduser -D hng_user
-USER hng_user
+# Copy the rest of the frontend application code
+COPY --chown=node:node . .
 
-# Requirement: fe_multi_stage
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
+# Switch to the built-in non-root 'node' user
+USER node
 
-# Requirement: fe_healthcheck (Frontend is on port 3000)
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:3000/ || exit 1
+# Healthcheck: Uses wget (built into Alpine) to check if the frontend is serving pages
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
+# Expose the frontend port
 EXPOSE 3000
+
+# Start the Express server
 CMD ["npm", "start"]

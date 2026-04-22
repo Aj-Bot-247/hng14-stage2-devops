@@ -35,10 +35,10 @@ jobs:
           echo '{"env": {"node": true, "es2021": true}, "extends": "eslint:recommended", "parserOptions": {"ecmaVersion": 12}}' > .eslintrc.json
           eslint frontend/app.js
 
-      - name: Lint Dockerfiles
+      - name: Lint Dockerfiles (hadolint)
         uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: "**/Dockerfile"
+          recursive: true
 
   test:
     name: Run Unit Tests
