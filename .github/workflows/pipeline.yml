@@ -122,6 +122,7 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
+          command_timeout: 30m
           script: |
             # Create a directory for the app if it doesn't exist
             mkdir -p ~/hng14-stage2-prod
